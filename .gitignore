@@ -1,0 +1,26 @@
+# Python / Django
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+db.sqlite3
+
+# Environment secrets
+.env
+.env.local
+.env.*.local
+
+# Django uploads (served from Cloudinary in prod, not needed in git)
+backend/media/
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

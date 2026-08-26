@@ -1,0 +1,192 @@
+.stack-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.stack-section__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+/* Заголовок секции — раскалённый металл: градиент от белого жара сверху
+   к остывающему багровому снизу, плюс оранжевое свечение вокруг букв. */
+.stack-section__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: 0.015em;
+  line-height: 1.15;
+  background: linear-gradient(
+    180deg,
+    #fff4d6 0%,
+    #ffc247 32%,
+    #ff7a18 62%,
+    #d92b06 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 22px rgba(255, 140, 30, 0.45))
+    drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+}
+
+.stack-section__grid {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 2.5rem;
+  max-width: 720px;
+  width: 100%;
+}
+
+.stack-section__item {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 12px;
+  will-change: transform, opacity, filter;
+  transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.stack-section__item:hover {
+  transform: translateY(-6px) scale(1.06);
+  background-color: var(--bg-secondary);
+}
+
+.stack-section__item img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 56px;
+  height: auto;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
+}
+
+/* Монохромные тёмные логотипы (GitHub чёрный, Django тёмно-зелёный) на
+   тёмном фоне сливаются. brightness(0) invert(1) перекрашивает их в чистый
+   белый силуэт; остальные иконки цветные и в этом не нуждаются.
+   Флаг `i` делает сравнение alt регистронезависимым — с бэкенда название
+   приходит ровно так, как введено в админке ("GitHub", "github", "Github"),
+   раньше правило ловило только точное "GitHub" и на админских не работало. */
+[data-theme='dark'] .stack-section__item img[alt='github' i],
+[data-theme='dark'] .stack-section__item img[alt='django' i] {
+  filter: brightness(0) invert(1) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+}
+
+/* Ореол жара — иконка "остывает" после подъёма из углей */
+.stack-section__glow {
+  position: absolute;
+  inset: -30%;
+  z-index: 0;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 240, 210, 0.9) 0%,
+    rgba(255, 150, 40, 0.55) 35%,
+    rgba(190, 40, 12, 0.2) 65%,
+    transparent 78%
+  );
+}
+
+/* Тултип с названием языка */
+.stack-section__item::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 108%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.stack-section__item:hover::after {
+  opacity: 1;
+}
+
+.stack-section__toast {
+  margin-top: 2rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  animation: toast-in 0.25s ease;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Мобильная адаптация ---
+   Иконки мельче и плотнее, чтобы при полутора десятках технологий сетка
+   не уезжала за нижний край экрана поверх углей. */
+@media (max-width: 760px) {
+  .stack-section__grid {
+    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
+    gap: 1.4rem;
+    max-width: 460px;
+  }
+
+  .stack-section__item img {
+    max-width: 42px;
+  }
+
+  /* Тултип держится в пределах экрана: у крайних иконок он иначе вылезал
+     за край и вызывал горизонтальную прокрутку */
+  .stack-section__item::after {
+    max-width: 40vw;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .stack-section__grid {
+    grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+    gap: 1rem;
+  }
+
+  .stack-section__item {
+    padding: 0.5rem;
+  }
+
+  .stack-section__item img {
+    max-width: 36px;
+  }
+}
+
+/* На телефоне тач-подсветка при наведении бесполезна и оставляет
+   «залипший» фон после касания */
+@media (hover: none) {
+  .stack-section__item:hover {
+    transform: none;
+    background-color: transparent;
+  }
+}

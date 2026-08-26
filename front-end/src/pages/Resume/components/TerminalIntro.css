@@ -1,0 +1,27 @@
+.terminal-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+}
+
+.terminal-intro__box {
+  font-family: var(--font-mono, monospace);
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  color: #1c6b4f;
+  text-shadow: 0 0 6px rgba(28, 107, 79, 0.6);
+  line-height: 1.9;
+}
+
+.terminal-intro__line {
+  margin: 0;
+  white-space: pre;
+}
+
+.terminal-intro__cursor {
+  color: #8c2a32;
+  text-shadow: 0 0 6px rgba(140, 42, 50, 0.7);
+}

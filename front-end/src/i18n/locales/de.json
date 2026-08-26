@@ -1,0 +1,154 @@
+{
+  "header": {
+    "resumeLink": "Lebenslauf",
+    "name": "Denys Peresunko",
+    "availability": "Offen für Angebote",
+    "location": "Sabadell",
+    "title": "Full-stack-Entwickler",
+    "tagline": "Ich schreibe nicht nur Code — ich baue, was du dir vorstellst."
+  },
+  "hints": { "scroll": "Nach unten scrollen" },
+  "guide": {
+    "title": "Was hier möglich ist",
+    "skull": "Der Schädel folgt dem Cursor — klicken zum Entzünden",
+    "stack": "Auf eine Technologie klicken, um die Notizen zu öffnen",
+    "scroll": "Nach unten scrollen — jede Etage hat ihre eigene Animation",
+    "resume": "Der Button «Lebenslauf» öffnet eine interaktive Seite",
+    "magnifier": "Im Lebenslauf die Lupe gedrückt halten und bewegen",
+    "live": "Der «Live»-Link öffnet das laufende Projekt",
+    "download": "Den Lebenslauf als PDF in deiner Sprache herunterladen"
+  },
+  "about": {
+    "title": "Willkommen auf meiner Seite!",
+    "subtitle": "Ich heiße Denys und helfe dir gerne bei allen Fragen rund um IT.",
+    "text": "Ich bin Student am IES Sabadell und arbeite entschlossen auf mein Ziel hin, Full-Stack-Entwickler zu werden. Meine wichtigsten Stärken sind Ausdauer und Entschlossenheit. Die Technologie entwickelt sich rasant, und der Wettbewerb unter Entwicklerinnen und Entwicklern wächst stetig — viele geben auf, aber ich sehe darin nur neue Chancen und blicke zuversichtlich in die Zukunft."
+  },
+  "stack": {
+    "title": "Programmiersprachen (Stack)"
+  },
+  "projects": {
+    "title": "Erfahrung",
+    "madeWith": {
+      "ai_full": "Vollständig mit KI (mit vollem Verständnis)",
+      "ai_half": "Halb KI, halb manuell",
+      "solo": "Vollständig manuell"
+    },
+    "remainingTime": "Verbleibende Zeit",
+    "reference": "Referenz",
+    "inProgress": "In Bearbeitung"
+  },
+  "resume": {
+    "name": "Denis Peresunko",
+    "role": "Full-Stack-Entwickler",
+    "location": "Sabadell, Spanien",
+    "contact": {
+      "phone": "+34 631 719 495",
+      "email": "peresunkodenis10@gmail.com"
+    },
+    "backButton": "Zurück zur Seite",
+    "downloadButton": "Lebenslauf herunterladen",
+    "objectiveTitle": "Berufliches Ziel",
+    "objective": "Mein aktuelles Ziel ist es, meine Karriere und formale IT-Ausbildung durch praktische Erfahrung in verwandten Bereichen zu ergänzen, meinen Horizont zu erweitern und durch die Arbeit zu lernen.",
+    "qualitiesTitle": "Persönliche Eigenschaften",
+    "qualities": [
+      "Kommunikationsstärke",
+      "Hohe Arbeitsorganisation",
+      "Schnelle Auffassungsgabe",
+      "Hohe Anpassungsfähigkeit"
+    ],
+    "availability": "Sofort verfügbar, flexibel einsetzbar",
+    "educationTitle": "Ausbildung",
+    "education": [
+      {
+        "period": "2025–2027",
+        "title": "DAW — Webanwendungsentwicklung (2. Jahr)",
+        "place": "IES Sabadell"
+      },
+      {
+        "period": "2023–2025",
+        "title": "CFGM Mikroinformatik und Netzwerke",
+        "place": "Institut Sabadell"
+      },
+      {
+        "period": "2022–2023",
+        "title": "ESO-Abschluss (Sekundarstufe)",
+        "place": "Institut Can Planes"
+      }
+    ],
+    "complementaryTitle": "Zusätzliche Ausbildung",
+    "complementary": [
+      {
+        "period": "2009–2022",
+        "items": [
+          "Ausbildung in rhythmischer Sportgymnastik",
+          "Zertifikat als Sportübungsleiter"
+        ]
+      }
+    ],
+    "languagesTitle": "Sprachen",
+    "languages": [
+      {
+        "name": "Ukrainisch",
+        "level": "C2"
+      },
+      {
+        "name": "Russisch",
+        "level": "C2"
+      },
+      {
+        "name": "Englisch",
+        "level": "B2"
+      },
+      {
+        "name": "Spanisch",
+        "level": "B2"
+      },
+      {
+        "name": "Katalanisch",
+        "level": "Grundkenntnisse"
+      },
+      {
+        "name": "Deutsch",
+        "level": "A2"
+      }
+    ],
+    "experienceTitle": "Berufserfahrung",
+    "experience": [
+      {
+        "period": "",
+        "role": "IT-Praktikum (mit Vertrag)",
+        "place": "Institut Narcís Freixes",
+        "items": [
+          "Netzwerkkonfiguration und -wartung",
+          "Technischer Support und grundlegende Systemdiagnose"
+        ]
+      }
+    ],
+    "skillsTitle": "Technischer Stack",
+    "skills": [
+      "Django",
+      "React + Vite",
+      "JavaScript",
+      "Java",
+      "PHP",
+      "MySQL",
+      "Three.js",
+      "GSAP",
+      "REST APIs",
+      "Git"
+    ],
+    "projectsTitle": "Ausgewählte Projekte",
+    "projects": [
+      {
+        "name": "Дубові бочки — E-Commerce für Fassbinderei",
+        "stack": "Django · MySQL · LiqPay · Nova Poshta API · Cloudinary",
+        "description": "Vollständige E-Commerce-Plattform für den familiären Fassbinderei-Betrieb: Online-Katalog, LiqPay-Zahlungsintegration, Nova-Poshta-Versand-API, Cloudinary-Medienspeicher, auslastungsbasierte Bestellbeschränkungen, SEO mit Sitemap und Open-Graph-Bildern. Deployment auf Render mit PostgreSQL."
+      },
+      {
+        "name": "Persönliches Portfolio",
+        "stack": "React · Vite · Three.js · GSAP · Django REST · i18next",
+        "description": "Diese Seite selbst: eine 3D-Intro-Szene mit Three.js, Scroll-Animationen mit GSAP, ein Django-REST-API-Backend und vollständige Lokalisierung in 5 Sprachen."
+      }
+    ]
+  }
+}

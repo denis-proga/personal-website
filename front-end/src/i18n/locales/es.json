@@ -1,0 +1,154 @@
+{
+  "header": {
+    "resumeLink": "Currículum",
+    "name": "Denys Pérez",
+    "availability": "Abierto a propuestas",
+    "location": "Sabadell",
+    "title": "Desarrollador Full-stack",
+    "tagline": "No solo escribo código — construyo lo que imaginas."
+  },
+  "hints": { "scroll": "Desliza hacia abajo" },
+  "guide": {
+    "title": "Qué puedes hacer aquí",
+    "skull": "La calavera sigue el cursor — haz clic para prenderla",
+    "stack": "Haz clic en una tecnología para abrir sus apuntes",
+    "scroll": "Desliza hacia abajo — cada planta tiene su animación",
+    "resume": "El botón «Currículum» abre una página interactiva",
+    "magnifier": "En el currículum, mantén pulsada la lupa y muévela",
+    "live": "El enlace «Live» abre el proyecto en funcionamiento",
+    "download": "Descarga el CV en PDF en tu idioma"
+  },
+  "about": {
+    "title": "¡Bienvenido a mi sitio!",
+    "subtitle": "Me llamo Denys y estoy listo para ayudarte con cualquier pregunta sobre tecnología IT.",
+    "text": "Soy estudiante en IES Sabadell y avanzo con firmeza hacia mi objetivo de convertirme en desarrollador full-stack. Mis principales cualidades son la perseverancia y la determinación. La tecnología avanza rápido y la competencia entre desarrolladores no deja de crecer: muchos se rinden, pero yo solo veo oportunidades y un futuro prometedor."
+  },
+  "stack": {
+    "title": "Lenguajes de programación (Stack)"
+  },
+  "projects": {
+    "title": "Experiencia",
+    "madeWith": {
+      "ai_full": "Totalmente con IA (con comprensión completa)",
+      "ai_half": "Mitad IA, mitad manual",
+      "solo": "Totalmente manual"
+    },
+    "remainingTime": "Tiempo restante",
+    "reference": "Referencia",
+    "inProgress": "En desarrollo"
+  },
+  "resume": {
+    "name": "Denis Peresunko",
+    "role": "Desarrollador Full-stack",
+    "location": "Sabadell, España",
+    "contact": {
+      "phone": "+34 631 719 495",
+      "email": "peresunkodenis10@gmail.com"
+    },
+    "backButton": "Volver al sitio",
+    "downloadButton": "Descargar CV",
+    "objectiveTitle": "Objetivo profesional",
+    "objective": "Mi objetivo actual es complementar mi carrera y estudios reglados en informática con experiencia in situ en otros campos. Expandir mis horizontes y aprender mediante mi trabajo.",
+    "qualitiesTitle": "Cualidades personales",
+    "qualities": [
+      "Dotes comunicativas",
+      "Trabajo altamente organizado",
+      "Facilidad de aprendizaje",
+      "Alta adaptabilidad"
+    ],
+    "availability": "Disponibilidad inmediata y flexible",
+    "educationTitle": "Formación académica",
+    "education": [
+      {
+        "period": "2025–2027",
+        "title": "DAW — Desarrollo de Aplicaciones Web (2º curso)",
+        "place": "IES Sabadell"
+      },
+      {
+        "period": "2023–2025",
+        "title": "CFGM Microinformática y Redes",
+        "place": "Institut Sabadell"
+      },
+      {
+        "period": "2022–2023",
+        "title": "Título de graduado en ESO",
+        "place": "Institut Can Planes"
+      }
+    ],
+    "complementaryTitle": "Formación complementaria",
+    "complementary": [
+      {
+        "period": "2009–2022",
+        "items": [
+          "Formación en gimnasia artística",
+          "Título de monitor e instructor de deportes"
+        ]
+      }
+    ],
+    "languagesTitle": "Idiomas",
+    "languages": [
+      {
+        "name": "Ucraniano",
+        "level": "C2"
+      },
+      {
+        "name": "Ruso",
+        "level": "C2"
+      },
+      {
+        "name": "Inglés",
+        "level": "B2"
+      },
+      {
+        "name": "Español",
+        "level": "B2"
+      },
+      {
+        "name": "Catalán",
+        "level": "Básico"
+      },
+      {
+        "name": "Alemán",
+        "level": "A2"
+      }
+    ],
+    "experienceTitle": "Experiencia profesional",
+    "experience": [
+      {
+        "period": "",
+        "role": "Prácticas en informática (con contrato)",
+        "place": "Institut Narcís Freixes",
+        "items": [
+          "Configuración y mantenimiento de redes",
+          "Soporte técnico y diagnóstico básico de sistemas"
+        ]
+      }
+    ],
+    "skillsTitle": "Stack técnico",
+    "skills": [
+      "Django",
+      "React + Vite",
+      "JavaScript",
+      "Java",
+      "PHP",
+      "MySQL",
+      "Three.js",
+      "GSAP",
+      "REST APIs",
+      "Git"
+    ],
+    "projectsTitle": "Proyectos destacados",
+    "projects": [
+      {
+        "name": "Дубові бочки — E-commerce de tonelería",
+        "stack": "Django · MySQL · LiqPay · Nova Poshta API · Cloudinary",
+        "description": "Plataforma de e-commerce completa para el negocio familiar de tonelería: catálogo online, integración de pago LiqPay, API de envíos Nova Poshta, almacenamiento de medios en Cloudinary, restricciones de pedidos según carga de trabajo, SEO con sitemap e imágenes Open Graph. Desplegado en Render con PostgreSQL."
+      },
+      {
+        "name": "Portfolio personal",
+        "stack": "React · Vite · Three.js · GSAP · Django REST · i18next",
+        "description": "Este mismo sitio: escena 3D de introducción con Three.js, animaciones de scroll con GSAP, backend con Django REST API y localización completa en 5 idiomas."
+      }
+    ]
+  }
+}

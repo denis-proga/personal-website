@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1f3a"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#g3)"/>
+  <circle cx="540" cy="70" r="140" fill="#2b5d9e" opacity="0.2"/>
+  <text x="48" y="220" font-family="'JetBrains Mono', monospace" font-size="40" font-weight="700" fill="#f5f5f5">Portfolio</text>
+  <text x="48" y="260" font-family="'JetBrains Mono', monospace" font-size="20" fill="#8fb4e0">Denys Perez</text>
+  <text x="48" y="310" font-family="'JetBrains Mono', monospace" font-size="18" fill="#5f8fc7">React &#183; Three.js &#183; GSAP &#183; Django</text>
+</svg>

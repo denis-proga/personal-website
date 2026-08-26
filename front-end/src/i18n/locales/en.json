@@ -1,0 +1,154 @@
+{
+  "header": {
+    "resumeLink": "Resume",
+    "name": "Denys Peresunko",
+    "availability": "Open to opportunities",
+    "location": "Sabadell",
+    "title": "Full-stack Developer",
+    "tagline": "I don't just write code — I build what you imagine."
+  },
+  "hints": { "scroll": "Scroll down" },
+  "guide": {
+    "title": "What you can do here",
+    "skull": "The skull follows your cursor — click to set it ablaze",
+    "stack": "Click a technology to open its study notes",
+    "scroll": "Scroll down — each floor has its own animation",
+    "resume": "The Resume button opens an interactive page",
+    "magnifier": "On the resume, hold the magnifier and drag it around",
+    "live": "The Live link opens the running project",
+    "download": "Download the CV as a PDF in your language"
+  },
+  "about": {
+    "title": "Welcome to my site!",
+    "subtitle": "My name is Denys, and I'm ready to help you with any IT-related questions.",
+    "text": "I'm a student at IES Sabadell, working steadily toward my goal of becoming a full-stack developer. My key strengths are persistence and determination. Technology is evolving fast, and competition among developers keeps growing — many give up, but I see nothing but opportunity and a bright future ahead."
+  },
+  "stack": {
+    "title": "Programming Languages (Stack)"
+  },
+  "projects": {
+    "title": "Experience",
+    "madeWith": {
+      "ai_full": "Fully AI-built (with full understanding)",
+      "ai_half": "Half AI, half manual",
+      "solo": "Fully manual"
+    },
+    "remainingTime": "Time remaining",
+    "reference": "Reference",
+    "inProgress": "In progress"
+  },
+  "resume": {
+    "name": "Denis Peresunko",
+    "role": "Full-stack Developer",
+    "location": "Sabadell, Spain",
+    "contact": {
+      "phone": "+34 631 719 495",
+      "email": "peresunkodenis10@gmail.com"
+    },
+    "backButton": "Back to site",
+    "downloadButton": "Download CV",
+    "objectiveTitle": "Professional objective",
+    "objective": "My current goal is to complement my career and formal IT education with hands-on experience in related fields, broaden my horizons, and keep learning through real work.",
+    "qualitiesTitle": "Personal qualities",
+    "qualities": [
+      "Strong communication skills",
+      "Highly organized work approach",
+      "Fast learner",
+      "High adaptability"
+    ],
+    "availability": "Immediate and flexible availability",
+    "educationTitle": "Education",
+    "education": [
+      {
+        "period": "2025–2027",
+        "title": "DAW — Web Application Development (2nd year)",
+        "place": "IES Sabadell"
+      },
+      {
+        "period": "2023–2025",
+        "title": "CFGM Microinformatics & Networks",
+        "place": "Institut Sabadell"
+      },
+      {
+        "period": "2022–2023",
+        "title": "ESO Diploma (Secondary Education)",
+        "place": "Institut Can Planes"
+      }
+    ],
+    "complementaryTitle": "Additional training",
+    "complementary": [
+      {
+        "period": "2009–2022",
+        "items": [
+          "Artistic gymnastics training",
+          "Sports monitor & instructor certification"
+        ]
+      }
+    ],
+    "languagesTitle": "Languages",
+    "languages": [
+      {
+        "name": "Ukrainian",
+        "level": "C2"
+      },
+      {
+        "name": "Russian",
+        "level": "C2"
+      },
+      {
+        "name": "English",
+        "level": "B2"
+      },
+      {
+        "name": "Spanish",
+        "level": "B2"
+      },
+      {
+        "name": "Catalan",
+        "level": "Basic"
+      },
+      {
+        "name": "German",
+        "level": "A2"
+      }
+    ],
+    "experienceTitle": "Professional experience",
+    "experience": [
+      {
+        "period": "",
+        "role": "IT Internship (contract)",
+        "place": "Institut Narcís Freixes",
+        "items": [
+          "Network configuration and maintenance",
+          "Technical support and basic systems diagnostics"
+        ]
+      }
+    ],
+    "skillsTitle": "Technical stack",
+    "skills": [
+      "Django",
+      "React + Vite",
+      "JavaScript",
+      "Java",
+      "PHP",
+      "MySQL",
+      "Three.js",
+      "GSAP",
+      "REST APIs",
+      "Git"
+    ],
+    "projectsTitle": "Featured projects",
+    "projects": [
+      {
+        "name": "Дубові бочки — Oak Cooperage E-commerce",
+        "stack": "Django · MySQL · LiqPay · Nova Poshta API · Cloudinary",
+        "description": "Full e-commerce platform built for a family cooperage business: online catalog, LiqPay payment integration, Nova Poshta shipping API, Cloudinary media storage, workload-based order restrictions, SEO with sitemap and Open Graph images. Deployed to Render with PostgreSQL."
+      },
+      {
+        "name": "Personal Portfolio",
+        "stack": "React · Vite · Three.js · GSAP · Django REST · i18next",
+        "description": "This very site: a Three.js 3D intro scene, GSAP scroll animations, a Django REST API backend, and full 5-language localization."
+      }
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+.scroll-nav {
+  position: fixed;
+  right: 2rem;
+  top: 110px; /* отступ под хедер, чтобы не наезжать на него */
+  bottom: 2.5rem; /* небольшой отступ снизу, чтобы не упираться в край */
+  width: 24px;
+  z-index: 150;
+}
+
+/* Линия-стержень — та же логика, что git-graph: вертикальная нить,
+   вдоль которой сидят "коммиты"-точки. */
+.scroll-nav__line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: rgba(139, 92, 246, 0.55);
+  border-radius: 2px;
+  /* Лёгкое свечение самой линии, не только точек */
+  box-shadow: 0 0 6px rgba(139, 92, 246, 0.4);
+}
+
+.scroll-nav__dot {
+  position: absolute;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 2px solid #8b5cf6;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  cursor: pointer;
+  /* Лёгкое постоянное свечение — ненавязчивое, просто обозначает точки */
+  box-shadow: 0 0 5px rgba(139, 92, 246, 0.35);
+  transition: transform 0.25s ease, background-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Явная визуальная реакция на hover — увеличение + свечение,
+   без текстовой подписи, но с однозначным сигналом "это кликабельно" */
+.scroll-nav__dot:hover {
+  transform: translate(-50%, -50%) scale(1.7);
+  background-color: #8b5cf6;
+  box-shadow: 0 0 14px rgba(139, 92, 246, 0.85);
+}
+
+.scroll-nav__dot--active {
+  background-color: #8b5cf6;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.55);
+}
+
+.scroll-nav__dot:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 3px;
+}
+
+/* На мобильном/узких экранах — убираем, чтобы не мешал контенту */
+@media (max-width: 640px) {
+  .scroll-nav {
+    display: none;
+  }
+}

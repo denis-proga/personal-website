@@ -1,0 +1,67 @@
+.about-text {
+  /* Ширину и место в flex-раскладке задаёт обёртка .about-section__text
+     (см. global.css) — она объединяет текст и гид под ним в один блок */
+  width: 100%;
+}
+
+.about-text__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  margin-bottom: 0.75rem;
+  /* Блок держит высоту строки, пока пуст, — иначе соседние блоки
+     подпрыгивают в момент, когда до них доходит очередь печати */
+  min-height: 1.2em;
+}
+
+.about-text__subtitle {
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+  min-height: 1.3em;
+}
+
+.about-text__body {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  min-height: 1.75em;
+}
+
+/* Ведущий курсор набора. Мигает, пока идёт печать, и замирает
+   статичной чертой, как только последний символ встал на место. */
+.about-text__cursor {
+  display: inline-block;
+  margin-left: 2px;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.about-text__cursor--blink {
+  animation: about-cursor-blink 1s step-end infinite;
+}
+
+@keyframes about-cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-text__cursor--blink {
+    animation: none;
+  }
+}
+
+/* --- Мобильная адаптация ---
+   clamp у заголовка уже даёт нижнюю границу, но подзаголовок и абзац на
+   телефоне читаются лучше чуть мельче и с более плотным интерлиньяжем. */
+@media (max-width: 760px) {
+  .about-text__subtitle {
+    margin-bottom: 0.9rem;
+  }
+
+  .about-text__body {
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+}

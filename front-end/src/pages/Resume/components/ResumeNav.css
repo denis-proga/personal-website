@@ -1,0 +1,97 @@
+@keyframes nav-fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.resume-nav {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  animation: nav-fade-in 0.6s ease 0.5s both;
+}
+
+.resume-nav__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: #2c1b0f;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+}
+
+.resume-nav__btn:hover .resume-nav__label {
+  opacity: 0.7;
+}
+
+.resume-nav__btn--back:hover .resume-nav__circle {
+  transform: translateX(-3px) scale(1.06);
+}
+
+.resume-nav__btn--download:hover .resume-nav__circle {
+  transform: translateY(-2px) scale(1.06);
+}
+
+.resume-nav__btn--download:active .resume-nav__circle {
+  transform: scale(0.94);
+}
+
+.resume-nav__btn--download {
+  flex-direction: row-reverse;
+}
+
+.resume-nav__circle {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: #1a1310;
+  color: #f5efe0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, background-color 0.3s ease;
+}
+
+.resume-nav__circle.is-success {
+  background: #1c6b4f;
+}
+
+.resume-nav__icon {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  transition: opacity 0.25s ease, transform 0.3s ease;
+}
+
+.resume-nav__icon--check {
+  opacity: 0;
+  transform: scale(0.4) rotate(-25deg);
+}
+
+.resume-nav__circle.is-success .resume-nav__icon--arrow {
+  opacity: 0;
+  transform: scale(0.4) rotate(25deg);
+}
+
+.resume-nav__circle.is-success .resume-nav__icon--check {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.resume-nav__label {
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+@media (max-width: 480px) {
+  .resume-nav__label {
+    display: none;
+  }
+}

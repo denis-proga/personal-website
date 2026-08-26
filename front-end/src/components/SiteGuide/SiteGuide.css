@@ -1,0 +1,152 @@
+.site-guide {
+  margin-top: 2rem;
+  max-width: 560px;
+  animation: site-guide-in 0.7s ease 1.4s both;
+}
+
+/* --- Свёрнутая строка-триггер --- */
+.site-guide__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  background: none;
+  border: none;
+  padding: 0.4rem 0;
+
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  opacity: 0.85;
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
+
+.site-guide__toggle:hover {
+  color: var(--accent-green);
+  opacity: 1;
+}
+
+/* Пульсирующая точка — единственное, что привлекает внимание к строке.
+   Гаснет, когда список раскрыт: своё дело она уже сделала. */
+.site-guide__spark {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-green, #3ddc84);
+  flex-shrink: 0;
+  animation: site-guide-pulse 2.6s ease-out infinite;
+}
+
+.site-guide--open .site-guide__spark {
+  animation: none;
+  opacity: 0.5;
+}
+
+.site-guide__chevron {
+  width: 15px;
+  height: 15px;
+  transition: transform 0.35s ease;
+}
+
+.site-guide--open .site-guide__chevron {
+  transform: rotate(180deg);
+}
+
+/* --- Раскрывающаяся панель ---
+   grid-template-rows 0fr -> 1fr даёт плавное раскрытие без вычисления
+   высоты в JS: содержимое остаётся в разметке и просто «сжимается». */
+.site-guide__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-guide--open .site-guide__panel {
+  grid-template-rows: 1fr;
+}
+
+.site-guide__list {
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-guide__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  padding: 0.42rem 0;
+
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  transition-delay: var(--delay, 0s);
+}
+
+.site-guide--open .site-guide__item {
+  opacity: 0.9;
+  transform: translateY(0);
+}
+
+/* Первый пункт получает отступ сверху только когда список раскрыт —
+   иначе он оставлял бы пустое место под свёрнутой строкой */
+.site-guide--open .site-guide__item:first-child {
+  padding-top: 0.7rem;
+}
+
+.site-guide__icon {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  width: 1.2rem;
+  flex-shrink: 0;
+  text-align: center;
+  color: var(--accent-green);
+  opacity: 0.75;
+}
+
+@keyframes site-guide-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(61, 220, 132, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(61, 220, 132, 0); }
+}
+
+@keyframes site-guide-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-guide,
+  .site-guide__spark {
+    animation: none;
+  }
+  .site-guide__panel,
+  .site-guide__item {
+    transition: none;
+  }
+}
+
+/* --- Мобильная адаптация --- */
+@media (max-width: 760px) {
+  .site-guide {
+    margin-top: 1.25rem;
+  }
+
+  .site-guide__toggle {
+    font-size: 0.72rem;
+    /* Строка-триггер может не влезть в одну строку на узком экране —
+       разрешаем перенос, но иконка и стрелка остаются на своих местах */
+    text-align: left;
+  }
+
+  .site-guide__item {
+    font-size: 0.8rem;
+    padding: 0.35rem 0;
+  }
+}

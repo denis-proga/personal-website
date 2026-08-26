@@ -1,0 +1,43 @@
+/* Заголовок секции — сцена и занавес: золотая фольга с бликом посередине,
+   как на карнизе, и тёплое свечение с бордовой тенью под буквами.
+   Перекликается с раскалённым заголовком второго этажа, но живёт в своей
+   палитре: там огонь, здесь театр. */
+.projects-grid__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: 0.015em;
+  line-height: 1.15;
+  background: linear-gradient(
+    180deg,
+    #fff3cd 0%,
+    #e8bf5c 30%,
+    #b8862b 55%,
+    #f3dc94 72%,
+    #8c5f16 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px rgba(214, 168, 68, 0.35))
+    drop-shadow(0 2px 3px rgba(74, 12, 18, 0.55));
+}
+
+/* min() вместо голого minmax(620px, 1fr): на широких экранах поведение
+   прежнее — две колонки по 620px и больше, а на узких колонка сжимается до
+   ширины контейнера. С фиксированными 620px телефон получал колонку шире
+   экрана и горизонтальную прокрутку всей страницы. */
+.projects-grid__list {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(620px, 100%), 1fr));
+  gap: 2.5rem;
+}
+
+@media (max-width: 640px) {
+  .projects-grid__list {
+    margin-top: 2rem;
+    gap: 1.5rem;
+  }
+}

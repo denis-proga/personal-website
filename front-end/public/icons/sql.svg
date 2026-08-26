@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="sqlGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4f92d6"/>
+      <stop offset="100%" stop-color="#1c5fa8"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="64" cy="30" rx="46" ry="16" fill="url(#sqlGrad)"/>
+  <path d="M18 30 V78 C18 86.8 38.8 94 64 94 C89.2 94 110 86.8 110 78 V30"
+        fill="url(#sqlGrad)" opacity="0.85"/>
+  <ellipse cx="64" cy="78" rx="46" ry="16" fill="none" stroke="#0e3f73" stroke-width="2.5" opacity="0.5"/>
+  <ellipse cx="64" cy="54" rx="46" ry="16" fill="none" stroke="#0e3f73" stroke-width="2" opacity="0.35"/>
+  <ellipse cx="64" cy="30" rx="46" ry="16" fill="none" stroke="#0e3f73" stroke-width="2.5"/>
+  <text x="64" y="66" text-anchor="middle" font-family="'JetBrains Mono', monospace"
+        font-size="24" font-weight="700" fill="#ffffff">SQL</text>
+</svg>

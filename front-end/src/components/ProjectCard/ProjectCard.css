@@ -1,0 +1,343 @@
+.project-card {
+  background: var(--bg-secondary);
+  border-radius: 14px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  transition: transform 0.32s ease, box-shadow 0.32s ease;
+  --card-glow-shadow: rgba(20, 16, 12, 0.16);
+}
+
+[data-theme='dark'] .project-card {
+  --card-glow-shadow: rgba(246, 243, 238, 0.14);
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 9px 26px var(--card-glow-shadow);
+}
+
+/* Бегущая подсветка кромки: --angle анимируется сама по себе через
+   @property, поэтому conic-gradient вращается по-настоящему плавно —
+   в отличие от поворота через transform, тут интерполируется сам угол,
+   а не весь слой целиком. */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: 0;
+  border-radius: 16px;
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    transparent 0%,
+    transparent 58%,
+    rgba(20, 16, 12, 0.9) 80%,
+    rgba(20, 16, 12, 0.35) 94%,
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 6px rgba(20, 16, 12, 0.45));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+[data-theme='dark'] .project-card::before {
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    transparent 0%,
+    transparent 58%,
+    rgba(246, 243, 238, 0.9) 80%,
+    rgba(246, 243, 238, 0.35) 94%,
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 6px rgba(246, 243, 238, 0.4));
+}
+
+.project-card:hover::before {
+  opacity: 1;
+  animation: project-card-spin 2s linear infinite;
+}
+
+@keyframes project-card-spin {
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* Перекрывает середину кольца тем же фоном, что и у самой карточки —
+   снаружи остаётся видна только тонкая, едва заметная полоска света */
+.project-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 14px;
+  background: var(--bg-secondary);
+}
+
+/* Единственный настоящий контент карточки — поднимаем его над обоими
+   служебными слоями (::before с кольцом и ::after с подложкой) */
+.project-card__top {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) 1fr;
+  gap: 2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-card {
+    transition: none;
+  }
+  .project-card:hover::before {
+    animation: none;
+  }
+}
+
+/* --- Левая колонка --- */
+.project-card__left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Обложки приходят с произвольными пропорциями, поэтому под ними всегда
+   остаётся свободное место. Раньше там был плоский var(--bg-primary) —
+   на светлой теме это читалось как белая дыра в карточке. Мягкий градиент
+   в палитре сайта смотрится как продуманная подложка, а не как пустота. */
+.project-card__media {
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    rgba(125, 22, 32, 0.12) 0%,
+    rgba(20, 16, 12, 0.07) 55%,
+    rgba(125, 22, 32, 0.09) 100%
+  );
+}
+
+[data-theme='dark'] .project-card__media {
+  background: linear-gradient(
+    135deg,
+    rgba(246, 243, 238, 0.07) 0%,
+    rgba(125, 22, 32, 0.16) 55%,
+    rgba(246, 243, 238, 0.05) 100%
+  );
+}
+
+.project-card__media img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+  display: block;
+}
+
+.project-card__duration {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--accent-green);
+  width: fit-content;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(43, 217, 127, 0.12);
+}
+
+.project-card__made-with {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.project-card__client {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* --- Правая колонка --- */
+.project-card__right {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.project-card__title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  margin-bottom: 0.6rem;
+}
+
+/* Длинные описания больше не обрезаются насовсем: блок держит одну и ту же
+   высоту (карточки в ряду остаются ровными), а текст внутри прокручивается.
+   line-clamp убран — он именно прятал хвост без возможности прочитать. */
+.project-card__description {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  flex: 1;
+  max-height: 10.5rem;
+  overflow-y: auto;
+  padding-right: 0.6rem;
+  /* Тонкий ненавязчивый скроллбар в цвет карточки, Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(125, 22, 32, 0.35) transparent;
+  /* Прокрутка описания не должна «пробрасываться» на страницу и дёргать
+     scroll-анимации этажей, когда текст домотан до конца */
+  overscroll-behavior: contain;
+}
+
+/* Chromium/WebKit */
+.project-card__description::-webkit-scrollbar {
+  width: 6px;
+}
+
+.project-card__description::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.project-card__description::-webkit-scrollbar-thumb {
+  background: rgba(125, 22, 32, 0.3);
+  border-radius: 999px;
+}
+
+.project-card__description::-webkit-scrollbar-thumb:hover {
+  background: rgba(125, 22, 32, 0.55);
+}
+
+[data-theme='dark'] .project-card__description {
+  scrollbar-color: rgba(246, 243, 238, 0.28) transparent;
+}
+
+[data-theme='dark'] .project-card__description::-webkit-scrollbar-thumb {
+  background: rgba(246, 243, 238, 0.25);
+}
+
+[data-theme='dark'] .project-card__description::-webkit-scrollbar-thumb:hover {
+  background: rgba(246, 243, 238, 0.45);
+}
+
+.project-card__reference {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.project-card__reference-label {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+}
+
+.project-card__links {
+  display: flex;
+  gap: 0.9rem;
+  font-size: 0.85rem;
+}
+
+.project-card__links a {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.project-card__links a:hover {
+  color: var(--accent-green);
+}
+
+/* --- Иконки стека: теперь часть правой колонки, под ссылками --- */
+.project-card__stack {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+}
+
+.project-card__stack-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.project-card__stack-badge:hover {
+  transform: translateY(-2px);
+}
+
+.project-card__stack-badge img {
+  width: 15px;
+  height: 15px;
+}
+
+/* Монохромные тёмные логотипы (GitHub чёрный, Django тёмно-зелёный) на
+   тёмной теме сливаются с фоном. brightness(0) invert(1) перекрашивает их
+   в чистый белый силуэт — в отличие от простого invert(1), который у
+   цветных логотипов даёт неестественные оттенки.
+   Флаг `i` в селекторе делает сравнение alt регистронезависимым: с бэкенда
+   название приходит как ввели в админке ("GitHub", "github", "Github"). */
+[data-theme='dark'] .project-card__stack-badge img[alt='github' i],
+[data-theme='dark'] .project-card__stack-badge img[alt='django' i] {
+  filter: brightness(0) invert(1);
+}
+
+/* --- Мобильная адаптация ---
+   Две колонки (обложка минимум 260px + текст) перестают помещаться заметно
+   раньше 480px: уже на планшете описание сжимается в нечитаемую полоску.
+   Поэтому переход в столбик — на 760px, а не на 480. */
+@media (max-width: 760px) {
+  .project-card {
+    padding: 1.1rem;
+  }
+
+  .project-card__top {
+    grid-template-columns: 1fr;
+    gap: 1.1rem;
+  }
+
+  /* В столбике обложка во всю ширину карточки, но не выше половины экрана —
+     иначе на длинных телефонах текст уезжает за пределы первого касания */
+  .project-card__media img {
+    aspect-ratio: 16 / 9;
+    max-height: 42vh;
+  }
+
+  .project-card__title {
+    font-size: 1.15rem;
+  }
+
+  /* Прокручиваемое описание на телефоне ниже: на маленьком экране блок в
+     10.5rem занимал бы почти весь видимый кусок карточки */
+  .project-card__description {
+    font-size: 0.9rem;
+    max-height: 7.5rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .project-card {
+    padding: 0.9rem;
+  }
+
+  .project-card__stack {
+    gap: 0.4rem;
+  }
+
+  .project-card__stack-badge {
+    width: 24px;
+    height: 24px;
+  }
+}

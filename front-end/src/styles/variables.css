@@ -1,0 +1,33 @@
+/* Базовая палитра по ТЗ: тёмно-зелёный, тёмно-красный, чёрный, белый, тёмно-синий.
+   Точные hex — подбираем на этапе дизайна секций, тут первое приближение. */
+:root {
+  --color-black: #0a0a0a;
+  --color-white: #f5f5f5;
+  --color-green-dark: #0e3b2e;
+  --color-red-dark: #4a0f14;
+  --color-blue-dark: #0b1f3a;
+
+  --font-display: 'Space Grotesk', sans-serif; /* заменим на выбранный шрифт при дизайне */
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace; /* для печатающегося текста */
+
+  --transition-base: 0.3s ease;
+}
+
+[data-theme='dark'] {
+  --bg-primary: var(--color-black);
+  --bg-secondary: var(--color-blue-dark);
+  --text-primary: var(--color-white);
+  --text-secondary: #b8b8b8;
+  --accent-green: #1c6b4f;
+  --accent-red: #8c2a32;
+}
+
+[data-theme='light'] {
+  --bg-primary: var(--color-white);
+  --bg-secondary: #e8e8e8;
+  --text-primary: var(--color-black);
+  --text-secondary: #4a4a4a;
+  --accent-green: var(--color-green-dark);
+  --accent-red: var(--color-red-dark);
+}
