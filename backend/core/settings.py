@@ -149,10 +149,11 @@ STORAGES = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React будет работать на этом порту
     "http://localhost:5173",
     "https://personal-website-frontend-qxay.onrender.com",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
