@@ -1,5 +1,6 @@
 from django.core.validators import FileExtensionValidator
 from django.db import models
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
 class TechStack(models.Model):
     name = models.CharField(max_length=100)
@@ -7,9 +8,15 @@ class TechStack(models.Model):
         upload_to='stacks/',
         blank=True,
         null=True,
+        storage=RawMediaCloudinaryStorage(),
         validators=[FileExtensionValidator(allowed_extensions=['svg', 'png', 'jpg', 'jpeg', 'webp'])],
     )
-    pdf_file = models.FileField(upload_to='pdfs/', blank=True, null=True)
+    pdf_file = models.FileField(
+        upload_to='pdfs/',
+        blank=True,
+        null=True,
+        storage=RawMediaCloudinaryStorage(),
+    )
     order = models.IntegerField(default=0)
 
     def __str__(self):
