@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import dj_database_url
 from decouple import config
 from pathlib import Path
+from whitenoise.storage import CompressedManifestStaticFilesStorage
+
+class NonStrictStaticFilesStorage(CompressedManifestStaticFilesStorage):
+    manifest_strict = False
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -146,7 +150,7 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "core.settings.NonStrictStaticFilesStorage",
     },
 }
 
@@ -179,5 +183,3 @@ import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-WHITENOISE_MANIFEST_STRICT = False
