@@ -33,7 +33,6 @@ ALLOWED_HOSTS = ['personal-website-p8el.onrender.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'modeltranslation',
-    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
