@@ -124,6 +124,17 @@
     rgba(20, 16, 12, 0.07) 55%,
     rgba(125, 22, 32, 0.09) 100%
   );
+  /* Обложка — кнопка, но выглядеть должна ровно как раньше */
+  padding: 0;
+  border: none;
+  width: 100%;
+  position: relative;
+  /* Лупа с плюсом вместо стрелки: сразу понятно, что по фото можно кликнуть.
+     Курсор нарисован инлайновым SVG — отдельный файл ради 12 строк не нужен.
+     zoom-in в конце — запасной вариант для браузеров без поддержки url(). */
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='13' cy='13' r='8.5' stroke='%23141010' stroke-width='4.5'/%3E%3Cpath d='M19.4 19.4 27 27' stroke='%23141010' stroke-width='4.5'/%3E%3Cpath d='M13 9.5v7M9.5 13h7' stroke='%23141010' stroke-width='4.5'/%3E%3Ccircle cx='13' cy='13' r='8.5'/%3E%3Cpath d='M19.4 19.4 27 27'/%3E%3Cpath d='M13 9.5v7M9.5 13h7'/%3E%3C/g%3E%3C/svg%3E")
+      13 13,
+    zoom-in;
 }
 
 [data-theme='dark'] .project-card__media {
@@ -140,6 +151,90 @@
   aspect-ratio: 16 / 10;
   object-fit: contain;
   display: block;
+  transition: transform 0.35s ease;
+}
+
+/* Лёгкий наезд при наведении — подсказка, что фото живое и кликабельное */
+.project-card__media:hover img {
+  transform: scale(1.04);
+}
+
+/* --- Раскрытая обложка на весь экран --- */
+.project-card__lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 4vw;
+  background: rgba(10, 8, 6, 0.92);
+  backdrop-filter: blur(4px);
+  /* Курсор-лупа с минусом: клик в любом месте возвращает карточку */
+  cursor: zoom-out;
+  animation: project-lightbox-in 0.22s ease;
+}
+
+@keyframes project-lightbox-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.project-card__lightbox-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  animation: project-lightbox-zoom 0.26s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@keyframes project-lightbox-zoom {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Крестик для тех, кому неочевидно, что закрыть можно кликом по фону */
+.project-card__lightbox-close {
+  position: absolute;
+  top: 2.2vh;
+  right: 2.2vw;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  color: #f6f3ee;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.project-card__lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-card__lightbox,
+  .project-card__lightbox-img {
+    animation: none;
+  }
+  .project-card__media:hover img {
+    transform: none;
+  }
 }
 
 .project-card__duration {
@@ -325,6 +420,11 @@
     font-size: 0.9rem;
     max-height: 7.5rem;
   }
+
+  /* На телефоне раскрытая обложка занимает почти весь экран */
+  .project-card__lightbox {
+    padding: 2vh 2vw;
+  }
 }
 
 @media (max-width: 420px) {
@@ -339,5 +439,16 @@
   .project-card__stack-badge {
     width: 24px;
     height: 24px;
+  }
+}
+
+/* На тач-устройствах курсора нет, а hover-наезд «залипает» после касания */
+@media (hover: none) {
+  .project-card__media {
+    cursor: default;
+  }
+
+  .project-card__media:hover img {
+    transform: none;
   }
 }

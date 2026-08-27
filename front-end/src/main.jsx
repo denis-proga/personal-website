@@ -9,6 +9,32 @@ import './i18n/i18n.js';
 import './styles/variables.css';
 import './styles/global.css';
 
+// Сколько ждём спящий бэкенд, прежде чем показать сайт на фолбэк-данных.
+// Бесплатный Render поднимает сервис за 30-60 секунд; держать посетителя
+// на заставке всё это время нельзя, поэтому на 20-й секунде рисуем то,
+// что есть. Данные, пришедшие позже, уже не подставляем: подмена после
+// первого кадра ломает GSAP-пины (см. комментарий ниже).
+const API_TIMEOUT = 20000;
+
+function withTimeout(promise) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('API timeout')), API_TIMEOUT)
+    ),
+  ]);
+}
+
+// Заставка живёт в index.html и показывается ещё до загрузки бандла.
+// Снимаем её только когда React смонтирован, с короткой растворяющей
+// анимацией, чтобы переход не был резким.
+function hideLoader() {
+  const loader = document.getElementById('app-loader');
+  if (!loader) return;
+  loader.classList.add('is-done');
+  setTimeout(() => loader.remove(), 500);
+}
+
 function render() {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
@@ -20,6 +46,10 @@ function render() {
       </BrowserRouter>
     </React.StrictMode>
   );
+
+  // Даём React дорисовать первый кадр, иначе заставка исчезнет на мгновение
+  // раньше, чем появится контент, и мелькнёт пустой фон
+  requestAnimationFrame(() => requestAnimationFrame(hideLoader));
 }
 
 // Стеки и проекты запрашиваются ДО первого рендера React.
@@ -34,9 +64,10 @@ function render() {
 // первого кадра рендерятся с окончательным списком — подменять нечего,
 // пин строится один раз и остаётся верным.
 //
-// allSettled, а не all: если бэкенд не поднят или отвечает ошибкой, сайт
-// всё равно должен отрисоваться — просто на фолбэк-данных.
-Promise.allSettled([getStacks(), getProjects()])
+// allSettled, а не all: если бэкенд не поднят, отвечает ошибкой или не
+// уложился в API_TIMEOUT, сайт всё равно должен отрисоваться — просто на
+// фолбэк-данных.
+Promise.allSettled([withTimeout(getStacks()), withTimeout(getProjects())])
   .then(([stacksResult, projectsResult]) => {
     setInitialData({
       stacks: stacksResult.status === 'fulfilled' ? stacksResult.value : null,

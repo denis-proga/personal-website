@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import './ProjectCard.css';
 
@@ -43,6 +45,7 @@ function pickText(value, lang) {
 function ProjectCard({ project }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.language || 'ru').split('-')[0];
+  const [zoomed, setZoomed] = useState(false);
   const {
     media_url,
     title,
@@ -59,14 +62,66 @@ function ProjectCard({ project }) {
   const displayTitle = pickText(title, lang);
   const displayDescription = pickText(short_description, lang);
 
+  // Пока обложка раскрыта на весь экран, страница под ней не должна
+  // прокручиваться: иначе после закрытия пользователь оказывается
+  // совсем в другом месте этажа, чем был до клика.
+  useEffect(() => {
+    if (!zoomed) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKey = (e) => {
+      if (e.key === 'Escape') setZoomed(false);
+    };
+    window.addEventListener('keydown', handleKey);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [zoomed]);
+
+  // Раскрытая обложка живёт в портале, а не внутри карточки. Причина
+  // техническая: position: fixed отсчитывается от ближайшего предка с
+  // transform, а трансформы тут повсюду — hover карточки поднимает её на
+  // 5px, GSAP оборачивает секции в pin-spacer. Внутри карточки лайтбокс
+  // из-за этого прилипал к ней вместо экрана. Портал в body обходит всё.
+  const lightbox = (
+    <div
+      className="project-card__lightbox"
+      onClick={() => setZoomed(false)}
+      role="dialog"
+      aria-modal="true"
+      aria-label={displayTitle}
+    >
+      <button
+        type="button"
+        className="project-card__lightbox-close"
+        onClick={() => setZoomed(false)}
+        aria-label="Закрыть"
+      >
+        ×
+      </button>
+      <img src={media_url} alt={displayTitle} className="project-card__lightbox-img" />
+    </div>
+  );
+
   return (
     <article className="project-card">
       <div className="project-card__top">
         {/* Левая колонка: фото + время + способ разработки под ним */}
         <div className="project-card__left">
-          <div className="project-card__media">
+          {/* button, а не div: раскрытие обложки — действие, и оно должно
+              работать с клавиатуры и озвучиваться скринридером */}
+          <button
+            type="button"
+            className="project-card__media"
+            onClick={() => setZoomed(true)}
+            aria-label={`${displayTitle} — увеличить`}
+          >
             <img src={media_url} alt={displayTitle} loading="lazy" />
-          </div>
+          </button>
 
           {(total_hours || status) && (
             <div className="project-card__duration">
@@ -121,6 +176,8 @@ function ProjectCard({ project }) {
           )}
         </div>
       </div>
+
+      {zoomed && createPortal(lightbox, document.body)}
     </article>
   );
 }

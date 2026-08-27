@@ -5,9 +5,122 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Denys Perez — Full-stack Developer</title>
+
+    <!--
+      Экран загрузки живёт прямо в HTML, а не в React: бесплатный Render
+      усыпляет бэкенд после простоя, и первый посетитель ждал ответа API до
+      минуты, глядя в белый экран. Инлайновые стили показывают заставку
+      мгновенно — ещё до того, как браузер скачает JS-бандл, — а запрос к
+      API в это время уже идёт параллельно. Убирает заставку main.jsx,
+      когда React смонтирован.
+    -->
+    <style>
+      #app-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        background: #f6f3ee;
+        color: #141010;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        transition: opacity 0.45s ease;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        #app-loader {
+          background: #141010;
+          color: #f6f3ee;
+        }
+      }
+
+      #app-loader.is-done {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .app-loader__ring {
+        width: 46px;
+        height: 46px;
+        border: 3px solid rgba(125, 22, 32, 0.22);
+        border-top-color: #7d1620;
+        border-radius: 50%;
+        animation: app-loader-spin 0.9s linear infinite;
+      }
+
+      @keyframes app-loader-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .app-loader__text {
+        font-size: 0.82rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+
+      /* Появляется только если пробуждение сервера затянулось — иначе
+         мелькнула бы и сбила с толку при быстрой загрузке */
+      .app-loader__hint {
+        max-width: 300px;
+        text-align: center;
+        font-size: 0.76rem;
+        line-height: 1.6;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+
+      .app-loader__hint.is-visible {
+        opacity: 0.5;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .app-loader__ring {
+          animation-duration: 2.4s;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="app-loader">
+      <div class="app-loader__ring"></div>
+      <div class="app-loader__text" id="app-loader-text">Loading</div>
+      <div class="app-loader__hint" id="app-loader-hint"></div>
+    </div>
+
     <div id="root"></div>
+
+    <script>
+      // Подписи на языке посетителя — сайт всё равно пятиязычный, а на этом
+      // этапе i18next ещё не загружен, поэтому короткий словарь прямо здесь.
+      (function () {
+        var TEXT = {
+          ru: ['Загрузка', 'Сервер просыпается после простоя. Это займёт до минуты.'],
+          uk: ['Завантаження', 'Сервер прокидається після простою. Це займе до хвилини.'],
+          en: ['Loading', 'The server is waking up after idling. This can take up to a minute.'],
+          es: ['Cargando', 'El servidor está despertando tras la inactividad. Puede tardar hasta un minuto.'],
+          de: ['Wird geladen', 'Der Server wacht nach einer Pause auf. Das kann bis zu einer Minute dauern.']
+        };
+
+        var lang = (navigator.language || 'en').slice(0, 2);
+        var copy = TEXT[lang] || TEXT.en;
+
+        document.getElementById('app-loader-text').textContent = copy[0];
+
+        setTimeout(function () {
+          var hint = document.getElementById('app-loader-hint');
+          if (!hint) return;
+          hint.textContent = copy[1];
+          hint.classList.add('is-visible');
+        }, 4000);
+      })();
+    </script>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

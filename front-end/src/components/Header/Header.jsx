@@ -8,6 +8,7 @@ import {
   InstagramIcon,
   TiktokIcon,
   FacebookIcon,
+  YoutubeIcon,
   MailIcon,
   ResumeIcon,
 } from './icons.jsx';
@@ -16,7 +17,7 @@ import './Header.css';
 // Фирменная эмблема — компонент Logo (src/components/Logo/Logo.jsx),
 // тот же SVG используется как favicon (public/favicon.svg).
 
-const EMAIL = 'denys.perez@example.com'; // TODO: заменить на реальную почту
+const EMAIL = 'peresunkodenis10@gmail.com';
 
 // brand — фирменный цвет сервиса. Уезжает в CSS-переменную --brand,
 // оттуда его берут и цвет контура, и свечение при наведении.
@@ -24,10 +25,11 @@ const EMAIL = 'denys.perez@example.com'; // TODO: заменить на реал
 // стиль перебил бы любое CSS-правило, поэтому он живёт только в Header.css.
 const SOCIAL_LINKS = [
   { key: 'github', href: 'https://github.com/denis-proga', Icon: GithubIcon, label: 'GitHub', brand: null },
-  { key: 'telegram', href: 'https://t.me/', Icon: TelegramIcon, label: 'Telegram', brand: '#229ed9' },
-  { key: 'instagram', href: 'https://instagram.com/', Icon: InstagramIcon, label: 'Instagram', brand: '#e1306c' },
-  { key: 'tiktok', href: 'https://tiktok.com/', Icon: TiktokIcon, label: 'TikTok', brand: '#fe2c55' },
-  { key: 'facebook', href: 'https://facebook.com/', Icon: FacebookIcon, label: 'Facebook', brand: '#1877f2' },
+  { key: 'youtube', href: 'https://youtube.com/@denis.codes.proga_web', Icon: YoutubeIcon, label: 'YouTube', brand: '#ff0000' },
+  { key: 'telegram', href: 'https://t.me/denis_codes_web', Icon: TelegramIcon, label: 'Telegram', brand: '#229ed9' },
+  { key: 'instagram', href: 'https://www.instagram.com/denis.codes/', Icon: InstagramIcon, label: 'Instagram', brand: '#e1306c' },
+  { key: 'tiktok', href: 'https://www.tiktok.com/@denis.codes', Icon: TiktokIcon, label: 'TikTok', brand: '#a855f7' },
+  { key: 'facebook', href: 'https://www.facebook.com/share/1CzeJNwmxq/?mibextid=wwXIfr', Icon: FacebookIcon, label: 'Facebook', brand: '#1877f2' },
 ];
 
 const LANGUAGES = [
@@ -51,7 +53,6 @@ function formatLocalTime() {
 function Header() {
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
-  const [copied, setCopied] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -66,7 +67,7 @@ function Header() {
     function handleScroll() {
       const stack = document.getElementById('stack');
       if (!stack) return;
-      setVisible(stack.getBoundingClientRect().top > window.innerHeight * 0.55);
+      setVisible(stack.getBoundingClientRect().top > window.innerHeight * 0.9);
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -89,15 +90,15 @@ function Header() {
     }
   }, [visible]);
 
-  const handleCopyEmail = async (e) => {
+  // Открываем веб-Gmail с уже подставленным получателем. Это работает даже
+  // там, где почтовый клиент в системе не настроен и mailto: ничего не даёт.
+  const handleComposeEmail = (e) => {
     e.preventDefault();
-    try {
-      await navigator.clipboard.writeText(EMAIL);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      window.location.href = `mailto:${EMAIL}`;
-    }
+    window.open(
+      `https://mail.google.com/mail/?view=cm&fs=1&to=${EMAIL}`,
+      '_blank',
+      'noreferrer'
+    );
   };
 
   const handleLangSelect = (code) => {
@@ -176,11 +177,13 @@ function Header() {
             </a>
           ))}
 
+          {/* href="mailto:" оставлен как запасной путь: если всплывающие окна
+              заблокированы, браузер откроет почтовый клиент по умолчанию. */}
           <a
             href={`mailto:${EMAIL}`}
-            onClick={handleCopyEmail}
+            onClick={handleComposeEmail}
             className="site-header__icon-link"
-            data-tooltip={copied ? '✓' : 'Gmail'}
+            data-tooltip="Gmail"
             data-brand="gmail"
             style={{ '--brand': '#ea4335' }}
           >
