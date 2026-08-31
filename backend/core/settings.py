@@ -26,7 +26,12 @@ SECRET_KEY = 'django-insecure-1u14s*)&$x8^l@um2r(=mmbmp#y0shfwi&c2$m$==_+xsr-%hy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['personal-website-p8el.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'api.deniscodes.com',
+    'personal-website-p8el.onrender.com',
+    'localhost',
+    '127.0.0.1',
+]
 
 
 # Application definition
@@ -159,10 +164,18 @@ CLOUDINARY_STORAGE = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://deniscodes.com",
+    "https://www.deniscodes.com",
     "https://personal-website-frontend-qxay.onrender.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://api.deniscodes.com",
+    "https://deniscodes.com",
+    "https://www.deniscodes.com",
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
