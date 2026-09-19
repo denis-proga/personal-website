@@ -445,3 +445,35 @@
     display: none;
   }
 }
+
+@media (pointer: coarse) {
+  /* Лист по ширине экрана вместо фиксированных 980px. will-change убран:
+     он создавал композитный слой, из-за которого пинч-зум растягивал
+     готовый растр вместо перерисовки текста. */
+  .paper-scale {
+    position: static;
+    width: 100%;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .paper-sheet,
+  .paper-roll-clip {
+    width: 100%;
+  }
+
+  .paper-sheet {
+    will-change: auto;
+  }
+
+  /* Две колонки по 34% и остаток на узком экране превращаются в две
+     нечитаемые полоски — складываем в одну */
+  .cv-columns {
+    grid-template-columns: 1fr;
+    gap: 1.3rem;
+  }
+
+  .paper-content {
+    padding: 1.5rem 1.3rem 2rem;
+  }
+}

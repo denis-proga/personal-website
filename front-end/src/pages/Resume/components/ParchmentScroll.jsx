@@ -30,6 +30,18 @@ export default function ParchmentScroll() {
     function recompute() {
       const el = paperRef.current;
       if (!el) return;
+
+      // На тач-устройствах лист не ужимается под экран: при ширине 980px
+      // масштаб выходил около 0.35, и текст становился нечитаемым, а
+      // увеличить его было нечем — лупа на тач отключена, а пинч-зум
+      // растягивает уже готовый растр слоя (will-change: transform) и даёт
+      // мыло. Вместо этого лист занимает ширину экрана, колонки становятся
+      // одной, а страница просто прокручивается — см. media-запросы в CSS.
+      if (window.matchMedia?.('(pointer: coarse)').matches) {
+        setScale(1);
+        setStageSize({ width: 0, height: 0 });
+        return;
+      }
       const naturalWidth = el.offsetWidth;
       const naturalHeight = el.offsetHeight;
       if (!naturalWidth || !naturalHeight) return;

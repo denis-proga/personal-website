@@ -66,3 +66,22 @@
 @media (prefers-reduced-motion: reduce) {
   .resume-bg__dust { animation: none; }
 }
+
+/* На телефоне резюме — обычная прокручиваемая страница, а не сцена,
+   в которую лист вписан целиком. */
+@media (pointer: coarse) {
+  .resume-page {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .resume-zoom-source {
+    position: static;
+  }
+
+  .resume-content {
+    height: auto;
+    padding: 5rem 0.9rem 3rem;
+  }
+}
