@@ -103,7 +103,12 @@ function ProjectCard({ project }) {
       >
         ×
       </button>
-      <img src={media_url} alt={displayTitle} className="project-card__lightbox-img" />
+      <img
+        src={media_url}
+        alt={displayTitle}
+        className="project-card__lightbox-img"
+        crossOrigin="anonymous"
+      />
     </div>
   );
 
@@ -120,7 +125,22 @@ function ProjectCard({ project }) {
             onClick={() => setZoomed(true)}
             aria-label={`${displayTitle} — увеличить`}
           >
-            <img src={media_url} alt={displayTitle} loading="lazy" />
+            {/* width/height обязательны при loading="lazy": без них браузер
+                до загрузки отводит картинке нулевой размер, а потом резко
+                расширяет — карточка дёргается, а заодно меняется высота
+                страницы и GSAP пересчитывает точки пина посреди анимации.
+                Реальный размер по-прежнему задаёт CSS (aspect-ratio 16/10),
+                эти числа нужны браузеру только чтобы знать пропорции заранее.
+                crossOrigin убирает сторонние куки Cloudinary — картинкам они
+                не нужны, а Chrome отмечает их как проблему приватности. */}
+            <img
+              src={media_url}
+              alt={displayTitle}
+              width="640"
+              height="400"
+              loading="lazy"
+              crossOrigin="anonymous"
+            />
           </button>
 
           {(total_hours || status) && (
@@ -169,7 +189,16 @@ function ProjectCard({ project }) {
             <div className="project-card__stack">
               {stack.map((s) => (
                 <span key={s.id} className="project-card__stack-badge" title={s.name}>
-                  <img src={s.icon} alt={s.name} />
+                  {/* Иконки крошечные (15px), поэтому без lazy: откладывать
+                      загрузку пары килобайт смысла нет, а размеры заданы
+                      явно, чтобы бейджи не схлопывались до нуля */}
+                  <img
+                    src={s.icon}
+                    alt={s.name}
+                    width="15"
+                    height="15"
+                    crossOrigin="anonymous"
+                  />
                 </span>
               ))}
             </div>

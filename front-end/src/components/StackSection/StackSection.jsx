@@ -151,7 +151,13 @@ function StackSection() {
               onClick={() => handleIconClick(stack)}
             >
               <span className="stack-section__glow" aria-hidden="true" />
-              <img src={stack.icon ?? stack.icon_url} alt={stack.name} loading="lazy" />
+              <img
+                  src={stack.icon ?? stack.icon_url}
+                  alt={stack.name}
+                  width="56"
+                  height="56"
+                  crossOrigin="anonymous"
+              />
             </button>
           ))}
         </div>
