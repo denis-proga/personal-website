@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ThemeProvider } from './context/ThemeContext.jsx';
@@ -6,12 +6,18 @@ import IntroAnimation from './components/IntroAnimation/IntroAnimation.jsx';
 import Header from './components/Header/Header.jsx';
 import ScrollNav from './components/ScrollNav/ScrollNav.jsx';
 import AboutText from './components/AboutText/AboutText.jsx';
-import SkullAnimation from './components/SkullAnimation/SkullAnimation.jsx';
 import ScrollHint from './components/ScrollHint/ScrollHint.jsx';
 import SiteGuide from './components/SiteGuide/SiteGuide.jsx';
 import StackSection from './components/StackSection/StackSection.jsx';
 import ProjectsGrid from './components/ProjectsGrid/ProjectsGrid.jsx';
 import CurtainReveal from './components/CurtainReveal/CurtainReveal.jsx';
+
+// Череп тянет за собой Three.js — самую тяжёлую библиотеку проекта.
+// При обычном import она попадала в главный бандл, и браузер обязан был
+// распарсить её ДО первой отрисовки, хотя в первую секунду череп никому не
+// нужен. Через lazy() Three.js уезжает в отдельный файл и подгружается
+// после того, как страница уже показана.
+const SkullAnimation = lazy(() => import('./components/SkullAnimation/SkullAnimation.jsx'));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -120,7 +126,12 @@ function App() {
               <AboutText active={introDone} />
               <SiteGuide />
             </div>
-            <SkullAnimation />
+            {/* Заглушка того же размера, что и сам череп: место под него
+                занято с первого кадра, поэтому когда компонент подгрузится,
+                страница не дёрнется и соседние блоки не поедут. */}
+            <Suspense fallback={<div className="skull-animation" aria-hidden="true" />}>
+              <SkullAnimation />
+            </Suspense>
             <ScrollHint active={introDone} />
           </section>
 

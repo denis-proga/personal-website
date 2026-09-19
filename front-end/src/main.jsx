@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App.jsx';
-import ResumePage from './pages/Resume/ResumePage.jsx';
 import { getStacks, getProjects } from './api/endpoints.js';
 import { setInitialData } from './api/initialData.js';
 import './i18n/i18n.js';
 import './styles/variables.css';
 import './styles/global.css';
+
+// Страница резюме со своим терминалом, лупой и пергаментом не нужна тем,
+// кто пришёл на главную, — а таких большинство. При обычном import её код
+// лежал в общем бандле и парсился при каждом заходе на сайт. Теперь
+// подгружается только при переходе на /resume.
+const ResumePage = lazy(() => import('./pages/Resume/ResumePage.jsx'));
 
 // Сколько ждём спящий бэкенд, прежде чем показать сайт на фолбэк-данных.
 // Бесплатный Render поднимает сервис за 30-60 секунд; держать посетителя
@@ -39,10 +44,15 @@ function render() {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path="/resume" element={<ResumePage />} />
-        </Routes>
+        {/* fallback пустой: главная грузится обычным импортом и появляется
+            сразу, а ожидание видно только при переходе на резюме — там оно
+            занимает доли секунды */}
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<App />} />
+            <Route path="/resume" element={<ResumePage />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </React.StrictMode>
   );
