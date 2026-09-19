@@ -18,10 +18,26 @@
   display: block;
 }
 
+/* Затемнение в конце вступления.
+   Круг описан здесь один раз и дальше только масштабируется из JS. Раньше
+   градиент пересобирался строкой на каждом кадре и присваивался в
+   style.background — браузер разбирал его заново и перерисовывал слой во
+   весь экран шестьдесят раз в секунду. transform и opacity, в отличие от
+   background, обрабатываются композитором и перерисовки не вызывают. */
 .intro-animation__blackout {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 45%,
+    #000 0%,
+    #000 55%,
+    rgba(0, 0, 0, 0) 78%
+  );
+  transform-origin: 50% 45%;
+  transform: scale(0);
+  opacity: 0;
+  will-change: transform, opacity;
 }
 
 .intro-animation__skip {

@@ -5,6 +5,16 @@ import './IntroAnimation.css';
 
 const DURATION = 2.4;
 
+// Момент, когда камера уже у экрана и начинается «проваливание» внутрь
+const PHASE_SPLIT = 0.55;
+
+// Насколько круто тормозит камера во второй фазе. Число не произвольное:
+// при нём скорость в начале второй фазы совпадает со скоростью в конце
+// первой, и переход между ними перестаёт быть заметным. Если менять
+// геометрию пролёта выше — это значение нужно пересчитать (см. комментарий
+// у cameraZ).
+const PHASE_B_EASE = 3.5;
+
 // Пул "команд" для терминала — создаёт эффект живого деплоя/апгрейда
 const COMMAND_POOL = [
   '$ npm install',
@@ -22,6 +32,35 @@ const COMMAND_POOL = [
   '$ npm run dev',
   'ready on http://localhost:5173',
 ];
+
+// Плавный старт и плавное завершение: производная равна нулю на обоих
+// концах, поэтому величина не «включается» рывком
+function smoothstep(p) {
+  const x = Math.min(1, Math.max(0, p));
+  return x * x * (3 - 2 * x);
+}
+
+/**
+ * Положение камеры по оси Z.
+ *
+ * Раньше две фазы стыковались только по координате, но не по скорости:
+ * в конце первой камера шла примерно 17 единиц за единицу времени, а
+ * вторая стартовала с 4.9 — втрое медленнее, мгновенно. Позиция при этом
+ * не прыгала, поэтому в коде это выглядело безобидно, а на экране читалось
+ * как подёргивание ровно посередине вступления.
+ *
+ * Теперь вторая фаза начинается с той же скоростью и плавно тормозит:
+ * 1-(1-p)^3.5 в нуле имеет наклон 3.5, что после деления на длительность
+ * фазы даёт ровно скорость конца первой.
+ */
+function cameraZ(t) {
+  if (t < PHASE_SPLIT) {
+    const p = t / PHASE_SPLIT;
+    return 6.5 - p * p * 4.7;
+  }
+  const p = (t - PHASE_SPLIT) / (1 - PHASE_SPLIT);
+  return 1.8 - 2.2 * (1 - Math.pow(1 - p, PHASE_B_EASE));
+}
 
 /**
  * Вступительная 3D-сцена: тёмная комната, стол с текстурой дерева,
@@ -181,7 +220,22 @@ function IntroAnimation({ onFinish }) {
       if (termLines.length > 15) termLines.shift();
     }
 
-    function drawTerminal(cursorOn) {
+    // Время в таскбаре меняется раз в минуту, а не раз в кадр: форматирование
+    // даты — операция недешёвая, чтобы делать её тридцать раз в секунду
+    let cachedTime = '';
+    let cachedTimeAt = 0;
+    function currentTime(now) {
+      if (!cachedTime || now - cachedTimeAt > 10000) {
+        cachedTime = new Date().toLocaleTimeString('ru-RU', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        cachedTimeAt = now;
+      }
+      return cachedTime;
+    }
+
+    function drawTerminal(cursorOn, now) {
       const w = termCanvas.width;
       const h = termCanvas.height;
       const taskbarH = h * 0.1;
@@ -226,19 +280,15 @@ function IntroAnimation({ onFinish }) {
         termCtx.fill();
       });
 
-      const timeStr = new Date().toLocaleTimeString('ru-RU', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
       termCtx.fillStyle = '#cfcfcf';
       termCtx.font = `${20 * ts}px monospace`;
       termCtx.textAlign = 'right';
-      termCtx.fillText(timeStr, w - 24 * ts, h - taskbarH / 2 + 7 * ts);
+      termCtx.fillText(currentTime(now), w - 24 * ts, h - taskbarH / 2 + 7 * ts);
       termCtx.textAlign = 'left';
 
       termTexture.needsUpdate = true;
     }
-    drawTerminal(true);
+    drawTerminal(true, 0);
 
     const screenMat = new THREE.MeshBasicMaterial({ map: termTexture });
     const screen = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.42), screenMat);
@@ -311,15 +361,12 @@ function IntroAnimation({ onFinish }) {
     function render(now) {
       const t = proxy.t;
 
-      if (t < 0.55) {
-        const p = t / 0.55;
-        camera.position.z = 6.5 - p * p * 4.7;
-        camera.fov = 50;
-      } else {
-        const p = (t - 0.55) / 0.45;
-        camera.position.z = 1.8 - p * 2.2;
-        camera.fov = 50 + p * 65;
-      }
+      camera.position.z = cameraZ(t);
+      // Угол обзора раскрывается через smoothstep: в точке старта его
+      // производная равна нулю, поэтому «проваливание» в экран начинается
+      // незаметно. Линейный рост включался скачком и добавлял свою долю в
+      // тот же рывок посередине.
+      camera.fov = 50 + 65 * smoothstep((t - PHASE_SPLIT) / (1 - PHASE_SPLIT));
       camera.lookAt(0, 1.35, camera.position.z - 3);
       camera.updateProjectionMatrix();
 
@@ -332,11 +379,13 @@ function IntroAnimation({ onFinish }) {
         pushLine();
         lastLine = now;
       }
-      // Терминал перерисовывается не каждый кадр, а раз в ~33мс: содержимое
-      // меняется куда реже, а полная перерисовка текстуры с загрузкой её в
-      // GPU — самая дорогая операция кадра на мобильном
-      if (!lite || now - lastTermDraw > 33) {
-        drawTerminal(blinkOn);
+      // Терминал перерисовывается не каждый кадр, а раз в ~33мс — и на
+      // десктопе тоже. Полная перерисовка холста 1024×584 с последующей
+      // загрузкой в видеопамять шестьдесят раз в секунду была самой дорогой
+      // операцией кадра, а содержимое меняется куда реже: строка раз в
+      // 180мс, курсор раз в 500мс.
+      if (now - lastTermDraw > 33) {
+        drawTerminal(blinkOn, now);
         lastTermDraw = now;
       }
 
@@ -345,12 +394,17 @@ function IntroAnimation({ onFinish }) {
       glowMat.color.copy(rgbColor);
       mouseLight.color.copy(rgbColor);
 
-      // Растущий чёрный круг: стягивается от центра экрана к полной тьме
+      // Растущий чёрный круг: стягивается от центра экрана к полной тьме.
+      //
+      // Раньше на каждом кадре собиралась новая строка radial-gradient и
+      // присваивалась в style.background — браузер разбирал её заново и
+      // перерисовывал слой во весь экран шестьдесят раз в секунду. Теперь
+      // круг нарисован один раз в CSS, а меняются только transform и
+      // opacity: их обрабатывает композитор, без перерисовки вообще.
       if (overlayRef.current) {
         const p = t > 0.45 ? Math.min(1, (t - 0.45) / 0.5) : 0;
-        const radius = p * 140;
-        const alpha = Math.min(1, p * 1.3);
-        overlayRef.current.style.background = `radial-gradient(circle at 50% 45%, rgba(0,0,0,${alpha}) 0%, rgba(0,0,0,${alpha}) ${radius}%, rgba(0,0,0,0) ${radius + 25}%)`;
+        overlayRef.current.style.opacity = Math.min(1, p * 1.3);
+        overlayRef.current.style.transform = `scale(${p * 4})`;
       }
 
       renderer.render(scene, camera);
