@@ -8,7 +8,22 @@ gsap.registerPlugin(ScrollTrigger);
 const SCROLL_LENGTH = '+=180%';
 export const CURTAIN_TRIGGER_ID = 'curtain-projects';
 
-const FOLD_COUNT = 18;
+// Складок на широком экране и на телефоне разное количество. Каждая складка —
+// это слой со сложным градиентом, который перерисовывается на каждом кадре
+// скролла; восемнадцать таких слоёв на двух панелях мобильный GPU не тянет,
+// и весь переход идёт рывками. Десяти достаточно: на узком экране разница
+// в детализации ткани не читается.
+const FOLD_COUNT_DESKTOP = 18;
+const FOLD_COUNT_MOBILE = 10;
+const MOBILE_WIDTH = 760;
+
+function prefersReducedMotion() {
+  try {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Театральный занавес.
@@ -31,6 +46,17 @@ function CurtainReveal({ children }) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    // При отключённых в системе анимациях занавес скрыт через CSS
+    // (см. media-запрос в CurtainReveal.css). Раньше таймлайн всё равно
+    // создавался, и пин длиной в 180% экрана оставался на месте: человек
+    // прокручивал почти два экрана пустоты, потому что скрытой шторе нечего
+    // было показывать. Теперь при reduce ScrollTrigger не создаётся вовсе —
+    // переход от стека к проектам становится обычным скроллом.
+    //
+    // Это же состояние включают на слабых машинах, отключая анимации
+    // системы ради скорости, так что случай совсем не редкий.
+    if (prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
       const left = leftRef.current;
@@ -100,7 +126,16 @@ function CurtainReveal({ children }) {
     return () => ctx.revert();
   }, []);
 
-  const folds = Array.from({ length: FOLD_COUNT }, (_, i) => i);
+  // Замер один раз при монтировании, без подписки на resize: перестроение
+  // складок на лету пересобрало бы DOM прямо во время скролла и сбило бы
+  // точки пина. Поворот телефона — случай редкий, ради него ломать переход
+  // не стоит.
+  const foldCount =
+    typeof window !== 'undefined' && window.innerWidth < MOBILE_WIDTH
+      ? FOLD_COUNT_MOBILE
+      : FOLD_COUNT_DESKTOP;
+
+  const folds = Array.from({ length: foldCount }, (_, i) => i);
 
   const renderPanel = (side, ref) => {
     const dir = side === 'left' ? 1 : -1;
@@ -115,7 +150,7 @@ function CurtainReveal({ children }) {
           {folds.map((i) => {
             // Веер в покое: складки у внутреннего края почти вертикальны,
             // к внешнему — всё сильнее заваливаются. Ширина неравномерна.
-            const t = i / (FOLD_COUNT - 1);
+            const t = i / (foldCount - 1);
             return (
               <span
                 key={i}

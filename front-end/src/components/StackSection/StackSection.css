@@ -46,10 +46,21 @@
   gap: 2.5rem;
   max-width: 720px;
   width: 100%;
+  /* Колонка шире самой иконки, поэтому без этой строки кнопка растягивалась
+     на всю ячейку, а картинка внутри прижималась к её левому краю. Снаружи
+     это читалось как неровные промежутки между иконками: слева впритык,
+     справа пустота. Теперь каждая иконка стоит по центру своей ячейки. */
+  justify-items: center;
+  align-items: center;
 }
 
 .stack-section__item {
   position: relative;
+  /* Картинка центрируется внутри самой кнопки — на случай, если кнопка всё
+     же окажется шире иконки (крупные экраны, нестандартные пропорции SVG) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   padding: 0.75rem;
@@ -147,30 +158,34 @@
    Иконки мельче и плотнее, чтобы при полутора десятках технологий сетка
    не уезжала за нижний край экрана поверх углей. */
 @media (max-width: 760px) {
+  .stack-section__inner {
+    /* Поля по бокам: без них крайние иконки упирались в самый край экрана */
+    padding: 0 1.25rem;
+  }
+
   .stack-section__grid {
     margin-top: 2rem;
     grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
-    gap: 1.4rem;
-    max-width: 460px;
+    /* Промежуток между рядами меньше, чем между колонками: ряды и так
+       разведены отступами самих кнопок, а по вертикали места меньше всего */
+    column-gap: 1.2rem;
+    row-gap: 1.6rem;
+    max-width: 380px;
+    /* Запас снизу, чтобы нижний ряд не наезжал на поле углей */
+    padding-bottom: 1.5rem;
   }
 
   .stack-section__item img {
     max-width: 42px;
-  }
-
-  /* Тултип держится в пределах экрана: у крайних иконок он иначе вылезал
-     за край и вызывал горизонтальную прокрутку */
-  .stack-section__item::after {
-    max-width: 40vw;
-    white-space: normal;
-    text-align: center;
   }
 }
 
 @media (max-width: 420px) {
   .stack-section__grid {
     grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
-    gap: 1rem;
+    column-gap: 0.9rem;
+    row-gap: 1.3rem;
+    max-width: 320px;
   }
 
   .stack-section__item {
@@ -188,5 +203,15 @@
   .stack-section__item:hover {
     transform: none;
     background-color: transparent;
+  }
+
+  /* Тултип на тач-устройстве не просто бесполезен, а вреден: после касания
+     iOS удерживает состояние :hover на кнопке, и подпись остаётся висеть
+     поверх соседнего ряда — именно так посреди сетки появлялась табличка
+     с названием технологии. Прячем совсем: название всё равно доступно
+     через alt картинки, а тапают по иконке ради конспекта, а не подписи. */
+  .stack-section__item::after,
+  .stack-section__item:hover::after {
+    display: none;
   }
 }

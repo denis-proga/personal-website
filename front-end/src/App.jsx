@@ -15,6 +15,14 @@ import CurtainReveal from './components/CurtainReveal/CurtainReveal.jsx';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Мобильные браузеры меняют высоту окна, когда прячут и показывают адресную
+// строку при скролле. По умолчанию ScrollTrigger считает это изменением
+// размера экрана и пересчитывает все точки — прямо посреди активного пина.
+// Из-за этого на телефоне секции дёргались и подпрыгивали на ровном месте.
+// С этим флагом смена высоты от адресной строки игнорируется, а настоящий
+// поворот экрана по-прежнему обрабатывается.
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 // Порядок секций = порядок скролла по ТЗ:
 // 1. Intro (заезд в монитор) -> 2. Header (сразу виден) ->
 // 3. Обо мне (печатающийся текст) + череп справа ->
@@ -75,16 +83,21 @@ function App() {
   // догрузилась позже всех. `load` не всплывает у <img>, но перехватывается
   // на фазе капчура — поэтому слушаем на window с capture: true, это ловит
   // загрузку любой картинки на странице, а не только уже известных сейчас.
+  //
+  // Пересчёт отложен на 200 мс после ПОСЛЕДНЕЙ загрузившейся картинки:
+  // иконки стека приходят пачкой, и refresh на каждую означал десяток
+  // пересчётов подряд, каждый из которых дёргал активный пин. Теперь
+  // пересчёт ровно один, когда пачка закончилась.
   useEffect(() => {
-    let rafId;
+    let timerId;
     function handleLoad(event) {
       if (event.target.tagName !== 'IMG') return;
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => ScrollTrigger.refresh());
+      clearTimeout(timerId);
+      timerId = setTimeout(() => ScrollTrigger.refresh(), 200);
     }
     window.addEventListener('load', handleLoad, true);
     return () => {
-      cancelAnimationFrame(rafId);
+      clearTimeout(timerId);
       window.removeEventListener('load', handleLoad, true);
     };
   }, []);
