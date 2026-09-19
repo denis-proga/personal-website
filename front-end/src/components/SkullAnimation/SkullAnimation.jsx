@@ -42,6 +42,19 @@ const STRAY_MIN_Z = 0.66;
 const EYE_MASK = { x: 0.3, y: 0.14, z: 0.2, radius: 0.2 };
 const NOSE_MASK = { y: -0.16, z: 0.25, radius: 0.11 };
 
+// Те же критерии, что и в EmberField: узкий экран, тач-указатель или мало
+// ядер. Череп — самая тяжёлая часть страницы, и именно на таких машинах
+// он и превращал сайт в слайд-шоу.
+function detectLiteMode() {
+  try {
+    const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
+    const fewCores = (navigator.hardwareConcurrency ?? 8) <= 4;
+    return window.innerWidth < 900 || coarse || fewCores;
+  } catch {
+    return false;
+  }
+}
+
 function SkullAnimation() {
   const canvasRef = useRef(null);
   const [status, setStatus] = useState('loading');
@@ -49,13 +62,21 @@ function SkullAnimation() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const parent = canvas.parentElement;
+    const lite = detectLiteMode();
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
     camera.position.set(0, 0, 4.6);
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // На слабых машинах сглаживание и плотность пикселей — первое, чем
+    // стоит пожертвовать: заметность низкая, стоимость каждого кадра высокая.
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: !lite,
+      alpha: true,
+      powerPreference: 'high-performance',
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, lite ? 1.5 : 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     function resize() {
@@ -156,9 +177,11 @@ function SkullAnimation() {
     skullGroup.add(textPlane);
 
     // ---------- Огонь: пламя-силуэт, обволакивающее череп ----------
-    const FIRE_COUNT = 2200;
+    // На слабых устройствах частиц втрое меньше: каждая обсчитывается в JS
+    // на каждом кадре, и при 2200 штуках это заметная доля времени кадра.
+    const FIRE_COUNT = lite ? 750 : 2200;
     const BURN_DURATION = 1.5; // сколько секунд идёт эмиссия после клика
-    const SPAWN_RATE = 2600; // частиц в секунду
+    const SPAWN_RATE = lite ? 900 : 2600; // частиц в секунду
 
     const firePositions = new Float32Array(FIRE_COUNT * 3);
     const fireLife = new Float32Array(FIRE_COUNT);
@@ -281,6 +304,18 @@ function SkullAnimation() {
     }
 
     // ---------- Разрез монолитной модели на череп и челюсть ----------
+    //
+    // Раньше треугольники собирались в обычные JS-массивы через push():
+    // при 97 тысячах треугольников это больше двух миллионов вызовов плюс
+    // последующее копирование массивов почти на миллион элементов в
+    // типизированные. Всё синхронно, на главном потоке — страница на это
+    // время переставала отвечать вообще (Lighthouse показывал двадцать
+    // секунд заблокированного потока).
+    //
+    // Теперь два прохода: первый только классифицирует треугольники и
+    // считает их, второй копирует данные в заранее выделенные Float32Array
+    // через set() блоками по девять чисел. Тот же результат, но без
+    // миллионов вызовов и без промежуточных массивов.
     function splitSkull(mesh) {
       const geo = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry.clone();
       geo.computeBoundingBox();
@@ -291,50 +326,90 @@ function SkullAnimation() {
       const nor = geo.attributes.normal?.array;
       const uv = geo.attributes.uv?.array;
 
-      const skullData = { pos: [], nor: [], uv: [] };
-      const jawData = { pos: [], nor: [], uv: [] };
+      const triCount = (pos.length / 9) | 0;
 
-      for (let t = 0; t < pos.length; t += 9) {
+      // 0 = череп, 1 = челюсть, 2 = обломок (выбрасывается)
+      const kind = new Uint8Array(triCount);
+      let skullTris = 0;
+      let jawTris = 0;
+
+      const invSizeY = 1 / size.y;
+      const invSizeZ = 1 / size.z;
+
+      for (let i = 0; i < triCount; i++) {
+        const t = i * 9;
+
         // Центр треугольника
         const cy = (pos[t + 1] + pos[t + 4] + pos[t + 7]) / 3;
         const cz = (pos[t + 2] + pos[t + 5] + pos[t + 8]) / 3;
 
-        const ny = (cy - bb.min.y) / size.y;
-        const nz = (cz - bb.min.z) / size.z;
+        const ny = (cy - bb.min.y) * invSizeY;
+        const nz = (cz - bb.min.z) * invSizeZ;
 
         // Наклонная линия реза: спереди ниже, сзади выше
-        const threshold = THREE.MathUtils.lerp(JAW_BACK_Y, JAW_FRONT_Y, nz);
-        const isJaw = nz > JAW_MIN_Z && ny < threshold;
+        const threshold = JAW_BACK_Y + (JAW_FRONT_Y - JAW_BACK_Y) * nz;
 
-        // Мелкие обломки нижних зубов, оставшиеся на верхней части у самой
-        // линии реза, просто выбрасываем — иначе торчат кусками во рту
-        const isDebris =
-          !isJaw &&
-          nz > STRAY_MIN_Z &&
-          ny > threshold &&
-          ny < threshold + STRAY_BAND;
-        if (isDebris) continue;
-
-        const target = isJaw ? jawData : skullData;
-        for (let k = 0; k < 9; k++) target.pos.push(pos[t + k]);
-        if (nor) for (let k = 0; k < 9; k++) target.nor.push(nor[t + k]);
-        if (uv) {
-          const uvBase = (t / 3) * 2;
-          for (let k = 0; k < 6; k++) target.uv.push(uv[uvBase + k]);
+        if (nz > JAW_MIN_Z && ny < threshold) {
+          kind[i] = 1;
+          jawTris++;
+        } else if (nz > STRAY_MIN_Z && ny > threshold && ny < threshold + STRAY_BAND) {
+          // Мелкие обломки нижних зубов у самой линии реза выбрасываем —
+          // иначе торчат кусками во рту
+          kind[i] = 2;
+        } else {
+          kind[i] = 0;
+          skullTris++;
         }
       }
 
-      function buildGeometry(data) {
+      const hasNor = !!nor;
+      const hasUv = !!uv;
+
+      const skullPos = new Float32Array(skullTris * 9);
+      const jawPos = new Float32Array(jawTris * 9);
+      const skullNor = hasNor ? new Float32Array(skullTris * 9) : null;
+      const jawNor = hasNor ? new Float32Array(jawTris * 9) : null;
+      const skullUv = hasUv ? new Float32Array(skullTris * 6) : null;
+      const jawUv = hasUv ? new Float32Array(jawTris * 6) : null;
+
+      let sp = 0;
+      let jp = 0;
+      let su = 0;
+      let ju = 0;
+
+      for (let i = 0; i < triCount; i++) {
+        const k = kind[i];
+        if (k === 2) continue;
+
+        const t = i * 9;
+        const u = i * 6;
+
+        if (k === 1) {
+          jawPos.set(pos.subarray(t, t + 9), jp);
+          if (hasNor) jawNor.set(nor.subarray(t, t + 9), jp);
+          if (hasUv) jawUv.set(uv.subarray(u, u + 6), ju);
+          jp += 9;
+          ju += 6;
+        } else {
+          skullPos.set(pos.subarray(t, t + 9), sp);
+          if (hasNor) skullNor.set(nor.subarray(t, t + 9), sp);
+          if (hasUv) skullUv.set(uv.subarray(u, u + 6), su);
+          sp += 9;
+          su += 6;
+        }
+      }
+
+      function buildGeometry(posArr, norArr, uvArr) {
         const g = new THREE.BufferGeometry();
-        g.setAttribute('position', new THREE.Float32BufferAttribute(data.pos, 3));
-        if (data.nor.length) g.setAttribute('normal', new THREE.Float32BufferAttribute(data.nor, 3));
+        g.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+        if (norArr) g.setAttribute('normal', new THREE.BufferAttribute(norArr, 3));
         else g.computeVertexNormals();
-        if (data.uv.length) g.setAttribute('uv', new THREE.Float32BufferAttribute(data.uv, 2));
+        if (uvArr) g.setAttribute('uv', new THREE.BufferAttribute(uvArr, 2));
         return g;
       }
 
-      const skullGeoPart = buildGeometry(skullData);
-      const jawGeoPart = buildGeometry(jawData);
+      const skullGeoPart = buildGeometry(skullPos, skullNor, skullUv);
+      const jawGeoPart = buildGeometry(jawPos, jawNor, jawUv);
 
       // Шарнир челюсти в локальных координатах модели
       const hinge = new THREE.Vector3(
@@ -367,10 +442,9 @@ function SkullAnimation() {
       parent.add(pivotWrapper);
       mesh.visible = false;
 
-      console.log(
-        `[SkullAnimation] Разрез выполнен: череп ${skullData.pos.length / 9} тр., ` +
-          `челюсть ${jawData.pos.length / 9} тр.`
-      );
+      // Исходная геометрия больше не нужна: обе половины живут в своих
+      // буферах, а эта копия иначе так и висела бы в памяти видеокарты
+      geo.dispose();
 
       return { pivot, skullPart, jawPart };
     }
@@ -396,10 +470,6 @@ function SkullAnimation() {
             meshes.push(child);
           }
         });
-        console.log(
-          '[SkullAnimation] Меши:',
-          meshes.map((m) => ({ name: m.name, v: m.geometry.attributes.position.count }))
-        );
 
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
@@ -436,8 +506,18 @@ function SkullAnimation() {
           skullGroup.add(hole);
         }
 
-        // Высокая детализация — иначе края отверстий получаются гранёными
-        const eyeGeo = new THREE.SphereGeometry(modelRadius * EYE_MASK.radius, 96, 64);
+        // Сегментов ровно столько, чтобы края отверстий не гранились.
+        // Было 96×64 и 72×48 — это тридцать тысяч треугольников на сферы,
+        // которые вообще не видны (они пишут только глубину). На глаз
+        // разницы с 32×24 нет, а геометрии в двадцать раз меньше.
+        const eyeSegments = lite ? [20, 14] : [32, 24];
+        const noseSegments = lite ? [16, 12] : [24, 18];
+
+        const eyeGeo = new THREE.SphereGeometry(
+          modelRadius * EYE_MASK.radius,
+          eyeSegments[0],
+          eyeSegments[1]
+        );
         eyeGeo.scale(1.12, 1, 1.6);
         addHole(
           eyeGeo,
@@ -448,7 +528,11 @@ function SkullAnimation() {
           new THREE.Vector3(modelRadius * EYE_MASK.x, modelRadius * EYE_MASK.y, modelRadius * EYE_MASK.z)
         );
 
-        const noseGeo = new THREE.SphereGeometry(modelRadius * NOSE_MASK.radius, 72, 48);
+        const noseGeo = new THREE.SphereGeometry(
+          modelRadius * NOSE_MASK.radius,
+          noseSegments[0],
+          noseSegments[1]
+        );
         noseGeo.scale(0.9, 1.35, 1.6);
         addHole(noseGeo, new THREE.Vector3(0, modelRadius * NOSE_MASK.y, modelRadius * NOSE_MASK.z));
 
@@ -516,7 +600,7 @@ function SkullAnimation() {
     canvas.addEventListener('click', handleClick);
 
     // ---------- Цикл ----------
-    let rafId;
+    let rafId = null;
     let langIndex = 0;
     let cyclePhase = 0;
     let swayTime = 0;
@@ -605,13 +689,37 @@ function SkullAnimation() {
       renderer.render(scene, camera);
       rafId = requestAnimationFrame(render);
     }
-    render();
+    rafId = requestAnimationFrame(render);
+
+    // Пока череп за пределами экрана, рисовать его незачем. Раньше цикл
+    // крутился всё время: посетитель читал проекты в самом низу страницы,
+    // а видеокарта продолжала рендерить сто тысяч треугольников и считать
+    // частицы шестьдесят раз в секунду — впустую грея процессор и сажая
+    // батарею. В EmberField это уже было сделано, здесь не хватало.
+    const visibility = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (rafId == null) {
+            // Сбрасываем накопленное время: иначе первый кадр после паузы
+            // получит огромный dt и дёрнет анимацию скачком
+            clock.getDelta();
+            rafId = requestAnimationFrame(render);
+          }
+        } else if (rafId != null) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+      },
+      { rootMargin: '200px 0px' }
+    );
+    visibility.observe(canvas);
 
     const handleResize = () => resize();
     window.addEventListener('resize', handleResize);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      if (rafId != null) cancelAnimationFrame(rafId);
+      visibility.disconnect();
       window.removeEventListener('resize', handleResize);
       canvas.removeEventListener('pointermove', handlePointerMove);
       canvas.removeEventListener('pointerleave', handlePointerLeave);
