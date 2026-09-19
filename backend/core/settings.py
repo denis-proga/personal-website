@@ -9,9 +9,11 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+import os
+from pathlib import Path
+
 import dj_database_url
 from decouple import config
-from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,11 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1u14s*)&$x8^l@um2r(=mmbmp#y0shfwi&c2$m$==_+xsr-%hy'
+# Ключ читается из окружения и НЕ хранится в репозитории: по нему
+# подписываются сессии и CSRF-токены, и знающий его может подделать сессию
+# администратора. Локально задаётся в backend/.env, на Render — в Environment.
+SECRET_KEY = config('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# По умолчанию False: если переменную забыли задать на сервере, безопаснее
+# остаться без отладки, чем случайно показать посетителю дамп настроек,
+# пути на сервере и параметры подключения к базе.
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = [
     'api.deniscodes.com',
@@ -91,17 +97,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'portfolio_db',
-#         'USER': 'root',
-#         'PASSWORD': '',  # твой пароль от MySQL если есть
-#         'HOST': '127.0.1.28',
-#         'PORT': '3306',
-#     }
-# }
 
 DATABASES = {
     'default': dj_database_url.config(default=config('DATABASE_URL'))
@@ -186,7 +181,38 @@ REST_FRAMEWORK = {
     ],
 }
 
-import os
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# ---------------------------------------------------------------------------
+# Защита на продакшене
+#
+# Всё в этом блоке включается только при DEBUG=False, иначе локальная
+# разработка на http://127.0.0.1 сломается: браузер не отдаёт «secure» куки
+# по обычному http, и вход в админку стал бы невозможен.
+# ---------------------------------------------------------------------------
+if not DEBUG:
+    # Render терминирует TLS на своём балансировщике, а до Django запрос
+    # доходит по http. Без этой строки Django считает соединение незащищённым
+    # и SECURE_SSL_REDIRECT уводит в бесконечный цикл редиректов.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+
+    # Куки сессии и CSRF уходят только по https и недоступны из JavaScript —
+    # даже если куда-то просочится чужой скрипт, увести сессию он не сможет.
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+
+    # HSTS: браузер запоминает, что на этот домен ходят только по https.
+    # Год — рекомендованное значение, но начать стоит с малого (например,
+    # 3600) и поднять, когда убедишься, что всё работает: откатить HSTS
+    # у уже побывавших посетителей нельзя, браузер помнит срок.
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = False
+
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = 'same-origin'
+    X_FRAME_OPTIONS = 'DENY'
